@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: processor-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payments?options=-c%20timezone=Asia/Kolkata
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+
+server:
+  port: 8081
