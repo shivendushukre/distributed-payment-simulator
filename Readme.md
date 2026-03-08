@@ -69,10 +69,9 @@ Example Event:
 
 ``` json
 {
-  "paymentId": "12345",
-  "amount": 100.00,
-  "currency": "USD",
-  "status": "INITIATED"
+  "idempotencyKey": "txn-008",
+  "amount": 100000.00,
+  "currency": "USD"
 }
 ```
 

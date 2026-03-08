@@ -19,7 +19,7 @@ public class PaymentEventConsumer{
         this.paymentServiceRepository = paymentServiceRepository;
     }
 
-    @RabbitListener(queues = "payment.created.queue")
+    @RabbitListener(queues = "payment.queue")
     public void processPayment(PaymentEvent paymentEvent) {
         System.out.println("Received payment " + paymentEvent.getPaymentId());
 

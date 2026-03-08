@@ -15,6 +15,6 @@ public class PaymentEventPublisher {
     }
 
     public void publishCreatedPayment(PaymentEvent event) {
-        rabbitTemplate.convertAndSend(RabbitMQConfig.PAYMENT_QUEUE, event);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, event);
     }
 }
