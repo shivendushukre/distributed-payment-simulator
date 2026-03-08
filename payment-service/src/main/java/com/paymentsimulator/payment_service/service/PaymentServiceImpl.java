@@ -6,6 +6,7 @@ import com.paymentsimulator.payment_service.dto.PaymentResponse;
 import com.paymentsimulator.payment_service.entity.Payment;
 import com.paymentsimulator.payment_service.repository.PaymentServiceRepository;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +62,13 @@ public class PaymentServiceImpl implements PaymentService {
             return mapToResponse(existingPayment);
         }
 
+    }
+
+    @Override
+    public @Nullable PaymentResponse getPaymentById(UUID paymentId) {
+        Payment payment = this.paymentServiceRepository.findById(paymentId).orElseThrow();
+
+        return mapToResponse(payment);
     }
 
     private PaymentResponse mapToResponse(Payment payment) {

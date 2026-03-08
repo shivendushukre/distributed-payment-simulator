@@ -3,8 +3,8 @@ spring:
     name: payment-service
   datasource:
     url: jdbc:postgresql://localhost:5432/payments?options=-c%20timezone=Asia/Kolkata
-    username: admin
-    password: admin
+    username: username
+    password: password
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -18,8 +18,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: admin
-    password: admin
+    username: username
+    password: password
 
 server:
   port: 8083
