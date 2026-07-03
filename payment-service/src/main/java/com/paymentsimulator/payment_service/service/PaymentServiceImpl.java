@@ -1,5 +1,6 @@
 package com.paymentsimulator.payment_service.service;
 
+import com.paymentsimulator.payment_service.Constants;
 import com.paymentsimulator.payment_service.dto.PaymentEvent;
 import com.paymentsimulator.payment_service.dto.PaymentRequest;
 import com.paymentsimulator.payment_service.dto.PaymentResponse;
@@ -16,9 +17,9 @@ import java.util.UUID;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    private PaymentServiceRepository paymentServiceRepository;
+    private final PaymentServiceRepository paymentServiceRepository;
 
-    private PaymentEventPublisher paymentEventPublisher;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     public PaymentServiceImpl(PaymentServiceRepository paymentServiceRepository, PaymentEventPublisher paymentEventPublisher) {
         this.paymentServiceRepository = paymentServiceRepository;
@@ -35,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setIdempotencyKey(paymentRequest.getIdempotencyKey());
             payment.setAmount(paymentRequest.getAmount());
             payment.setCurrency(paymentRequest.getCurrency());
-            payment.setStatus("INITIATED");
+            payment.setStatus(Constants.INITIATED_STATUS);
             payment.setRetryCount(0);
             payment.setCreatedAt(LocalDateTime.now());
             payment.setUpdatedAt(LocalDateTime.now());
