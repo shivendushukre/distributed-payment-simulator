@@ -28,6 +28,7 @@ public class RabbitMQConfig {
 
     // --- Main Queue ---
     // Declares where failed messages go: the retry exchange
+    @Bean
     Queue mainQueue() {
         return QueueBuilder.durable(QUEUE)
                 .withArgument("x-dead-letter-exchange", EXCHANGE)

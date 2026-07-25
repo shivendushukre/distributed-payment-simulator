@@ -8,6 +8,8 @@ import com.paymentsimulator.payment_service.entity.Payment;
 import com.paymentsimulator.payment_service.repository.PaymentServiceRepository;
 import jakarta.transaction.Transactional;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentEventPublisher paymentEventPublisher;
 
+    private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
+
     public PaymentServiceImpl(PaymentServiceRepository paymentServiceRepository, PaymentEventPublisher paymentEventPublisher) {
         this.paymentServiceRepository = paymentServiceRepository;
         this.paymentEventPublisher = paymentEventPublisher;
@@ -31,6 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
         try {
+            logger.info("Payment request initiated from payment service");
             Payment payment = new Payment();
             payment.setId(UUID.randomUUID());
             payment.setIdempotencyKey(paymentRequest.getIdempotencyKey());
@@ -43,6 +48,10 @@ public class PaymentServiceImpl implements PaymentService {
 
             Payment saved = paymentServiceRepository.save(payment);
 
+            logger.info("Payment request saved in database with status {}", Constants.INITIATED_STATUS);
+
+            logger.info("Payment publishing to the queue...");
+
             // publish event to RabbitMQ
             PaymentEvent event = new PaymentEvent(
                     saved.getId().toString(),
@@ -53,9 +62,11 @@ public class PaymentServiceImpl implements PaymentService {
 
             paymentEventPublisher.publishCreatedPayment(event);
 
+            logger.info("Payment published to the queue.");
+
             return mapToResponse(saved);
         } catch (DataIntegrityViolationException e) {
-
+            logger.info("Idempotency key hit...");
             // Idempotency hit → fetch existing record
             Payment existingPayment = paymentServiceRepository.findByIdempotencyKey(paymentRequest.getIdempotencyKey()).orElseThrow(
                     () -> new RuntimeException("Payment exists but could not be retrieved")
@@ -68,7 +79,6 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public @Nullable PaymentResponse getPaymentById(UUID paymentId) {
         Payment payment = this.paymentServiceRepository.findById(paymentId).orElseThrow();
-
         return mapToResponse(payment);
     }
 

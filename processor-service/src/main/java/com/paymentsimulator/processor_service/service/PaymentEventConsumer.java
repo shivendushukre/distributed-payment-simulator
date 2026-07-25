@@ -56,7 +56,7 @@ public class PaymentEventConsumer{
         }
 
         // simulate payment processing
-        boolean success = Math.random() > 0.2;
+        boolean success = Math.random() > 0.3;
 
         if(success) {
             payment.setStatus(Constants.PAYMENT_SUCCESS_STATUS);
@@ -78,7 +78,7 @@ public class PaymentEventConsumer{
             logger.warn("Retrying payment {} - attempt {}/{}", paymentEvent.getPaymentId(), nextRetry, RabbitMQConfig.MAX_RETRIES);
 
             // update status in DB to retrying
-            updatePaymentStatus(paymentEvent.getPaymentId(), Constants.PAYMENT_RETRYING_STATUS, null);
+            updatePaymentStatus(paymentEvent.getPaymentId(), Constants.PAYMENT_RETRYING_STATUS, null, nextRetry);
 
             // forward to retry queue with incremented retry count
             rabbitTemplate.convertAndSend(
@@ -94,7 +94,7 @@ public class PaymentEventConsumer{
             logger.error("Payment {} exhausted retries, sending to DLQ", paymentEvent.getPaymentId());
 
             // mark as permanently failed in DB
-            updatePaymentStatus(paymentEvent.getPaymentId(), Constants.PAYMENT_FAILURE_STATUS, e.getMessage());
+            updatePaymentStatus(paymentEvent.getPaymentId(), Constants.PAYMENT_FAILURE_STATUS, e.getMessage(), RabbitMQConfig.MAX_RETRIES);
 
             // send to DLQ
             rabbitTemplate.convertAndSend(
@@ -111,7 +111,7 @@ public class PaymentEventConsumer{
         return 0;
     }
 
-    private void updatePaymentStatus(String paymentId, String status, String failMsg) {
+    private void updatePaymentStatus(String paymentId, String status, String failMsg, Integer retryCount) {
         try {
             UUID id = UUID.fromString(paymentId);
 
@@ -119,6 +119,9 @@ public class PaymentEventConsumer{
                 payment.setStatus(status);
                 if (failMsg != null) {
                     payment.setFailureReason(failMsg);
+                }
+                if (retryCount != null) {
+                    payment.setRetryCount(retryCount);
                 }
                 payment.setUpdatedAt(LocalDateTime.now());
                 paymentServiceRepository.save(payment);
