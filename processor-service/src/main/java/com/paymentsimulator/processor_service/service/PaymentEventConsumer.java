@@ -50,8 +50,9 @@ public class PaymentEventConsumer{
                 ));
 
         // already processed
-        if (!Constants.PAYMENT_INITIATED_STATUS.equals(payment.getStatus())) {
-            logger.info("Payment {} already processed, skipping...", paymentEvent.getPaymentId());
+        if (Constants.TERMINAL_STATUSES.contains(payment.getStatus())) {
+            logger.info("Payment {} is already in terminal state {}, skipping...",
+                    paymentEvent.getPaymentId(), payment.getStatus());
             return;
         }
 
@@ -65,7 +66,6 @@ public class PaymentEventConsumer{
             throw new RuntimeException("Payment rejected by Bank");
         }
 
-        payment.setUpdatedAt(LocalDateTime.now());
         paymentServiceRepository.save(payment);
         logger.info("Payment {} processed successfully.", paymentEvent.getPaymentId());
     }
@@ -123,7 +123,6 @@ public class PaymentEventConsumer{
                 if (retryCount != null) {
                     payment.setRetryCount(retryCount);
                 }
-                payment.setUpdatedAt(LocalDateTime.now());
                 paymentServiceRepository.save(payment);
             });
         } catch (Exception e) {

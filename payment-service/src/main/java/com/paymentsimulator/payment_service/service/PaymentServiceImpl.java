@@ -5,6 +5,7 @@ import com.paymentsimulator.payment_service.dto.PaymentEvent;
 import com.paymentsimulator.payment_service.dto.PaymentRequest;
 import com.paymentsimulator.payment_service.dto.PaymentResponse;
 import com.paymentsimulator.payment_service.entity.Payment;
+import com.paymentsimulator.payment_service.exception.PaymentNotFoundException;
 import com.paymentsimulator.payment_service.repository.PaymentServiceRepository;
 import jakarta.transaction.Transactional;
 import org.jspecify.annotations.Nullable;
@@ -43,8 +44,7 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setCurrency(paymentRequest.getCurrency());
             payment.setStatus(Constants.INITIATED_STATUS);
             payment.setRetryCount(0);
-            payment.setCreatedAt(LocalDateTime.now());
-            payment.setUpdatedAt(LocalDateTime.now());
+            // createdAt and updatedAt are now set automatically by @PrePersist
 
             Payment saved = paymentServiceRepository.save(payment);
 
@@ -77,8 +77,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public @Nullable PaymentResponse getPaymentById(UUID paymentId) {
-        Payment payment = this.paymentServiceRepository.findById(paymentId).orElseThrow();
+    public PaymentResponse getPaymentById(UUID paymentId) {
+        Payment payment = this.paymentServiceRepository.findById(paymentId).orElseThrow(() -> new PaymentNotFoundException(paymentId));
         return mapToResponse(payment);
     }
 

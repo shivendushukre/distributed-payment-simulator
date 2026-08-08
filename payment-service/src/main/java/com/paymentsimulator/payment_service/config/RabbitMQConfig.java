@@ -2,6 +2,7 @@ package com.paymentsimulator.payment_service.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,7 +38,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    Binding binding(Queue queue, DirectExchange exchange) {
+    Binding binding(@Qualifier("mainQueue") Queue queue, DirectExchange exchange) {
         return BindingBuilder
                 .bind(queue)
                 .to(exchange)
@@ -56,7 +57,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    Binding retryBinding(Queue retryQueue, DirectExchange exchange) {
+    Binding retryBinding(@Qualifier("retryQueue") Queue retryQueue, DirectExchange exchange) {
         return BindingBuilder.bind(retryQueue)
                 .to(exchange)
                 .with(RETRY_ROUTING);
@@ -70,7 +71,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    Binding dlqBinding(Queue deadLetterQueue, DirectExchange exchange) {
+    Binding dlqBinding(@Qualifier("deadLetterQueue") Queue deadLetterQueue, DirectExchange exchange) {
         return BindingBuilder.bind(deadLetterQueue).to(exchange).with(DLQ_ROUTING);
     }
 
