@@ -23,7 +23,7 @@ public class PaymentController {
     @PostMapping("")
     public ResponseEntity<PaymentResponse> createPayment(@Valid @RequestBody PaymentRequest request) {
         PaymentResponse response = paymentService.createPayment(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.accepted().body(response);
     }
 
     @GetMapping("/{paymentId}")

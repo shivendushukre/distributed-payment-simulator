@@ -22,15 +22,6 @@ public class RabbitMQConfig {
     public static final int MAX_RETRIES    = 3;
     public static final int RETRY_DELAY_MS = 5000;
 
-    // Passive declaration — tells Spring "this queue already exists, don't create it"
-    // Fails fast at startup if payment-service hasn't run first
-    @Bean
-    public Queue mainQueue() {
-        Queue queue = new Queue(QUEUE,true);
-        queue.setAdminsThatShouldDeclare();
-        return queue;
-    }
-
     @Bean
     public JacksonJsonMessageConverter messageConverter() {
         return new JacksonJsonMessageConverter();
@@ -44,6 +35,7 @@ public class RabbitMQConfig {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(messageConverter);
+        factory.setMissingQueuesFatal(false);
         return factory;
     }
 }

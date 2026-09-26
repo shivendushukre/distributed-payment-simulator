@@ -5,16 +5,16 @@ import com.paymentsimulator.payment_service.dto.PaymentEvent;
 import com.paymentsimulator.payment_service.dto.PaymentRequest;
 import com.paymentsimulator.payment_service.dto.PaymentResponse;
 import com.paymentsimulator.payment_service.entity.Payment;
+import com.paymentsimulator.payment_service.exception.IdempotentPaymentException;
 import com.paymentsimulator.payment_service.exception.PaymentNotFoundException;
 import com.paymentsimulator.payment_service.repository.PaymentServiceRepository;
 import jakarta.transaction.Transactional;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,6 +35,16 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
+
+        // Check idempotency key first — before any insert attempt
+        Optional<Payment> existing = paymentServiceRepository
+                .findByIdempotencyKey(paymentRequest.getIdempotencyKey());
+
+        if (existing.isPresent()) {
+            logger.warn("Idempotency key hit, returning existing payment...");
+            throw new IdempotentPaymentException(existing.get());
+        }
+
         try {
             logger.info("Payment request initiated from payment service");
             Payment payment = new Payment();
