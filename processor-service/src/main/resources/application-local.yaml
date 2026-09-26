@@ -1,0 +1,23 @@
+# Local development profile — used only when SPRING_PROFILES_ACTIVE=local
+# Values here match docker-compose.yml defaults so the project works out of the box.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/payments?options=-c%20timezone=Asia/Kolkata
+    username: username
+    password: password
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: username
+    password: password
+    virtual-host: /
+
+server:
+  port: 8081

@@ -1,25 +1,45 @@
 spring:
   application:
     name: payment-service
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/payments?options=-c%20timezone=Asia/Kolkata
-    username: username
-    password: password
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false          # overridden to true in local profile only
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: username
-    password: password
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}       # default if not set
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
 
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
+
+# Actuator — expose health and info only; never expose env or configprops in prod
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: false   # prevents /actuator/info from leaking env vars

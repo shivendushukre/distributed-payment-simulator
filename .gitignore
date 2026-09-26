@@ -1,0 +1,42 @@
+# === SECRET FILES — NEVER COMMIT ===
+.env
+*.env
+!.env.example          # the example template IS committed
+
+# Application secret overrides (if anyone creates these locally)
+application-secrets.yaml
+application-secrets.yml
+*-secrets.yaml
+*-secrets.yml
+
+# === Maven ===
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# === IDEs ===
+.idea/
+*.iws
+*.iml
+*.ipr
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+.vscode/
+.nb-gradle/
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# === OS ===
+.DS_Store
+Thumbs.db
