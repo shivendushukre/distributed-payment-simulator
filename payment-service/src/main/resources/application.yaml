@@ -28,6 +28,17 @@ spring:
     password: ${RABBITMQ_PASSWORD}
     virtual-host: ${RABBITMQ_VHOST:/}
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Where Spring fetches the public keys to verify token signatures.
+          # In prod: your auth server's JWKS endpoint (Keycloak, Auth0, etc.)
+          # For local dev: overridden in application-dev.yaml with a static key
+          jwks-uri: ${JWT_JWKS_URI}
+          # Audience claim your tokens must carry (rejects tokens not meant for this service)
+          audiences: ${JWT_AUDIENCE:payment-service}
+
 server:
   port: ${SERVER_PORT:8083}
 

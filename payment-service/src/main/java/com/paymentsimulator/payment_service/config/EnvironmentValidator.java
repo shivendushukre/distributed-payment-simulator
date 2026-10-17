@@ -32,7 +32,7 @@ public class EnvironmentValidator implements ApplicationListener<ApplicationEnvi
     );
 
     // Profiles where concrete values come from YAML — no env vars needed
-    private static final List<String> EXEMPT_PROFILES = List.of("local", "test");
+    private static final List<String> EXEMPT_PROFILES = List.of("local", "test","dev");
 
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {

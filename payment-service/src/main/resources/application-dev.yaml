@@ -19,5 +19,14 @@ spring:
     password: password
     virtual-host: /
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Static public key for local dev — no Keycloak needed.
+          # Generate once with: openssl genrsa -out private.pem 2048
+          #                     openssl rsa -in private.pem -pubout -out public.pem
+          public-key-location: classpath:keys/dev-public.pem
+
 server:
   port: 8083
