@@ -16,7 +16,7 @@ import java.util.List;
  * instead of a cryptic NPE or HikariPool failure deep in startup.
  *
  * Skipped for the "local" and "test" profiles, which use
- * application-local.yaml / application-test.yaml with concrete values.
+ * application-dev.yaml / application-test.yaml with concrete values.
  */
 public class EnvironmentValidator implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
