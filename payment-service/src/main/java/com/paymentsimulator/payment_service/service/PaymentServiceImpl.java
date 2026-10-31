@@ -22,13 +22,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentServiceRepository paymentServiceRepository;
 
-    private final PaymentEventPublisher paymentEventPublisher;
+    private final OutboxService outboxService;
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
-    public PaymentServiceImpl(PaymentServiceRepository paymentServiceRepository, PaymentEventPublisher paymentEventPublisher) {
+    public PaymentServiceImpl(PaymentServiceRepository paymentServiceRepository, OutboxService outboxService) {
         this.paymentServiceRepository = paymentServiceRepository;
-        this.paymentEventPublisher = paymentEventPublisher;
+        this.outboxService = outboxService;
     }
 
 
@@ -60,9 +60,6 @@ public class PaymentServiceImpl implements PaymentService {
 
             logger.info("Payment request saved in database with status {}", Constants.INITIATED_STATUS);
 
-            logger.info("Payment publishing to the queue...");
-
-            // publish event to RabbitMQ
             PaymentEvent event = new PaymentEvent(
                     saved.getId().toString(),
                     saved.getIdempotencyKey(),
@@ -70,9 +67,9 @@ public class PaymentServiceImpl implements PaymentService {
                     saved.getCurrency()
             );
 
-            paymentEventPublisher.publishCreatedPayment(event);
+            outboxService.record(saved.getId().toString(), Constants.PAYMENT_CREATED_EVENT, event);
 
-            logger.info("Payment published to the queue.");
+            logger.info("Payment event recorded in outbox for async publishing.");
 
             return mapToResponse(saved);
         } catch (DataIntegrityViolationException e) {

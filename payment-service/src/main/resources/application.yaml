@@ -27,6 +27,10 @@ spring:
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     virtual-host: ${RABBITMQ_VHOST:/}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
 
   security:
     oauth2:
@@ -54,3 +58,12 @@ management:
   info:
     env:
       enabled: false   # prevents /actuator/info from leaking env vars
+
+outbox:
+  relay:
+    poll-interval-ms: 1000
+    batch-size: 50
+    confirm-timeout-ms: 5000
+  cleanup:
+    retention-days: 7
+    cron: "0 0 3 * * *"
